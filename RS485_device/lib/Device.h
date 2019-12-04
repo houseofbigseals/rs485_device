@@ -11,16 +11,59 @@ lib for device arduino wrappers
 class MasterMeassage
 {
     public:
-    uint16_t DEV_ADDR;
-    uint32_t VALUE;
-    uint16_t REG_ADDR;
+    MasterMeassage(    
+        uint8_t DEV_ADDR_1_,
+        uint8_t DEV_ADDR_2_,
+        uint8_t VALUE_1_,
+        uint8_t VALUE_2_,
+        uint8_t VALUE_3_,
+        uint8_t VALUE_4_,
+        uint8_t REG_ADDR_1_,
+        uint8_t REG_ADDR_2_,
+        uint8_t COMMAND_,
+        uint8_t CRC_16_1_,
+        uint8_t CRC_16_2_
+        );
+
+    uint8_t DEV_ADDR_1;
+    uint8_t DEV_ADDR_2;
+    uint8_t VALUE_1;
+    uint8_t VALUE_2;
+    uint8_t VALUE_3;
+    uint8_t VALUE_4;
+    uint8_t REG_ADDR_1;
+    uint8_t REG_ADDR_2;
     uint8_t COMMAND;
-
-
+    uint8_t CRC_16_1;
+    uint8_t CRC_16_2;
 };
 
 class SlaveMessage
 {
+    public:
+    SlaveMessage(
+        uint8_t DEV_ADDR_1_,
+        uint8_t DEV_ADDR_2_,
+        uint8_t VALUE_1_,
+        uint8_t VALUE_2_,
+        uint8_t VALUE_3_,
+        uint8_t VALUE_4_,
+        uint8_t STATUS_1_,
+        uint8_t STATUS_2_,
+        uint8_t CRC_16_1_,
+        uint8_t CRC_16_2_
+        );
+        
+    uint8_t DEV_ADDR_1;
+    uint8_t DEV_ADDR_2;
+    uint8_t VALUE_1;
+    uint8_t VALUE_2;
+    uint8_t VALUE_3;
+    uint8_t VALUE_4;
+    uint8_t STATUS_1;
+    uint8_t STATUS_2;
+    uint8_t CRC_16_1;
+    uint8_t CRC_16_2;
 
 };
 
