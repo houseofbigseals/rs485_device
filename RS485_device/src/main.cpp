@@ -1,10 +1,12 @@
 #include <Arduino.h>
+#include <Device.h>
 
 void setup() 
 {
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
   // put your setup code here, to run once:
+  Protocol p = Protocol();
 }
 
 
