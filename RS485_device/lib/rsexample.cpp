@@ -8,6 +8,8 @@
  * or may not, but i got such problem, so now you are warned
  */
 
+
+
 #define SerialTxControl 3
 #define RS485Transmit HIGH
 #define RS485Receive LOW
@@ -47,11 +49,11 @@ void loop()
       do_show_temp();
     }*/
 }
-
+/*
 void check_rs485()
 {
   if( myserial.available() )
-    {
+  {
         byte ans = 0xBB;
         byte common_sign = 0xAA;
         byte reqv_start_byte = 0x45;
@@ -124,7 +126,7 @@ void check_rs485()
             default:
               ans = 0xBB;
               break;
-          }*/
+          }
       byte crc_low = 0x06;
       byte crc_high = 0x06;
       int answer_len = 8;
@@ -141,6 +143,6 @@ void check_rs485()
       //Serial.write(out_command, 8);
       delay(5);
       digitalWrite(SerialTxControl, RS485Receive);
-      }
-    }
+  }
 }
+*/
