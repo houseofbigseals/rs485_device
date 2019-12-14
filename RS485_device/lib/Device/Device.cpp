@@ -1,55 +1,14 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 #include "Device.h"
 
 
-
-
-uint16_t d_unite2 (uint8_t first, uint8_t last)
-{
-    // unite 2 uint8_t bytes to one uint16_t
-    uint16_t result = 0;
-    result = (uint16_t)first << 8;
-    result = result | last;
-    return result;
-}
-
-uint32_t d_unite4 (uint8_t b1, uint8_t b2, uint8_t b3, uint8_t b4)
-{
-    // unite 4 uint8_t bytes to one uint32_t
-    uint32_t result = 0;
-    result = (uint32_t)b1 << 24;
-    result = result | ((uint32_t)(b2 << 16));
-    result = result | ((uint32_t)(b3 << 8));
-    result = result | ((uint32_t)b4);
-    return result;
-}
-
-two_bytes d_split2 (uint16_t value)
-{
-    // splits one uint16_t to two uint8_t as fields of two_bytes struct
-    two_bytes result;
-    result.first = 0;
-    result.last = 0;
-    result.first = (uint8_t)((value & 0xFF00) >> 8);
-    result.last = (uint8_t)((value & 0x00FF));
-    return result;
-}
-
-
-
-
-Protocol::Protocol()
-{
-    // hm
-}
-
 Reg::Reg(
-        uint16_t addr_ = 0x0000,
-        uint32_t data_ = 0x00000000,
-        bool readable_ = false,
-        bool writable_ = false,
-        bool executable_ = false,
-        uint32_t (*exec_method_pointer_)() = nullptr
+        uint16_t addr_ ,
+        uint32_t data_,
+        bool readable_ ,
+        bool writable_,
+        bool executable_,
+        uint32_t (*exec_method_pointer_)()
     )
 {
     addr = addr_;
@@ -96,7 +55,7 @@ SlaveMessage BaseDevice::generate_success_sm(uint8_t command, uint32_t data)
 }
 
 
-BaseDevice::BaseDevice(uint16_t uid, Protocol *p_)
+BaseDevice::BaseDevice(uint16_t uid)
 {
     // init all registers manually
     // its not so bad
@@ -114,8 +73,6 @@ BaseDevice::BaseDevice(uint16_t uid, Protocol *p_)
     regs_len = 1;
     regs = new Reg*[regs_len];
     regs[0] = &_uid;  // put here pointer for _uid
-    // copy pointer of protocol
-    p = p_;
     // thats all folks
 
 }
@@ -151,40 +108,54 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
         switch (mm.COMMAND)
         {
             case d_user_read:
+            {
                 // read register and return generated sm
                 return _read_register(actual_reg, false);
                 break;
+            }
             case d_user_write:
+            {
                 // write 
                 uint32_t new_data = d_unite4(mm.VALUE_1, mm.VALUE_2, mm.VALUE_3, mm.VALUE_4);
                 return _write_register(actual_reg, new_data, false);
                 break;
+            }
             case d_user_execute:
+            {
                 // execute
                 return _execute_register(actual_reg, false);
                 break;
+            }
             case d_admin_read:
+            {
                 // read register as admin and return generated sm
                 return _read_register(actual_reg, true);
                 break;
+            }
             case d_admin_write:
+            {
                 // write register as admin and return generated sm
-                uint32_t new_data = d_unite4(mm.VALUE_1, mm.VALUE_2, mm.VALUE_3, mm.VALUE_4);
-                return _write_register(actual_reg, new_data, true);
+                uint32_t ndata = d_unite4(mm.VALUE_1, mm.VALUE_2, mm.VALUE_3, mm.VALUE_4);
+                return _write_register(actual_reg, ndata, true);
                 break;
+            }
             case d_admin_execute:
+            {
                 // execute register as admin and return generated sm
                 return _execute_register(actual_reg, true);
                 break;
+            }
             default:
+            {
                 // return slave message with error  d_incorrect_command and goodbye
                 return generate_error_sm(mm.COMMAND, d_incorrect_command);
                 break;
+            }
         }
     }
 }
 
-SlaveMessage BaseDevice::_read_register(Reg* r, bool isadmin = false)
+SlaveMessage BaseDevice::_read_register(Reg* r, bool isadmin)
 {
     // handle all things about reading data from register
     if(isadmin)
@@ -211,7 +182,7 @@ SlaveMessage BaseDevice::_read_register(Reg* r, bool isadmin = false)
     } 
 }
 
-SlaveMessage BaseDevice::_write_register(Reg* r, uint32_t new_data, bool isadmin = false)
+SlaveMessage BaseDevice::_write_register(Reg* r, uint32_t new_data, bool isadmin)
 {
     // handle all things about writing data from register
     if(isadmin)
@@ -240,7 +211,7 @@ SlaveMessage BaseDevice::_write_register(Reg* r, uint32_t new_data, bool isadmin
     }
 }
 
-SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin = false)
+SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin)
 {
     // handle all things about executing data from register
 

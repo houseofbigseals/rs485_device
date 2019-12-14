@@ -1,12 +1,14 @@
 #include <Arduino.h>
-#include <Device.h>
+//#include <Device.h>
+#include <SystemKeeper.h>
 
 void setup() 
 {
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
   // put your setup code here, to run once:
-  Protocol p = Protocol();
+  SystemKeeper p = SystemKeeper();
+  BaseDevice dev = BaseDevice(0x0020);
 }
 
 
