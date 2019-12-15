@@ -50,6 +50,9 @@ class BaseDevice
 
     // base device can only have uid and nothing more
     public:
+    // internal method
+    uint16_t get_uid(); 
+
     BaseDevice(uint16_t uid);
     SlaveMessage handle_mm(MasterMeassage mm); //returns error message or answer message
     SlaveMessage generate_error_sm(uint8_t command, uint8_t error_code); //generates default error sm

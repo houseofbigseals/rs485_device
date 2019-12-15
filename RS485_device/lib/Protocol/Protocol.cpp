@@ -44,7 +44,7 @@ two_bytes d_split2 (uint16_t value)
   MaxLen: 4095 байт (32767 бит) - обнаружение
     одинарных, двойных, тройных и всех нечетных ошибок
 */
-const unsigned short Crc16Table[256] = {
+const unsigned short d_Crc16Table[256] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
     0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
     0x1231, 0x0210, 0x3273, 0x2252, 0x52B5, 0x4294, 0x72F7, 0x62D6,
@@ -84,7 +84,7 @@ uint16_t d_crc16(uint8_t * pcBlock, uint16_t len)
     uint16_t crc = 0xFFFF;
 
     while (len--)
-        crc = (crc << 8) ^ Crc16Table[(crc >> 8) ^ *pcBlock++];
+        crc = (crc << 8) ^ d_Crc16Table[(crc >> 8) ^ *pcBlock++];
 
     return crc;
 }

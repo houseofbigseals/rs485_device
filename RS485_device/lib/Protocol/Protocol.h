@@ -77,6 +77,8 @@
 // ========================= constants declaration =============================
 // constants
 
+const uint16_t d_system_version = 0x0001;
+
 // commands
 const uint8_t d_user_read = 0x01;
 const uint8_t d_user_write = 0x02;
@@ -101,6 +103,8 @@ const uint8_t d_unknown_error = 0x40;
 // some default variables to construct messages
 const uint8_t d_stub_value = 0x00;
 const uint8_t d_start_byte = 0xCA;
+const uint8_t d_master_message_len = 12;
+const uint8_t d_slave_message_len = 11;
 
 // default register adresses
 const uint16_t d_device_addr = 0x0001;

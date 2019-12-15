@@ -251,6 +251,18 @@ SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin)
     }
 }
 
+void BaseDevice::do_your_duty()
+{
+    // nothing for base class
+}
+
+uint16_t BaseDevice::get_uid()
+{
+    // yeah its stupid but we need some dirty service methods
+    uint16_t uid_ = (uint16_t)_uid.data;
+    return uid_;
+}
+
 // old version
 /*SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin = false)
 {
