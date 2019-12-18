@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+// part for arduino serial debug
+//#include <Arduino.h>
+//const bool D_RS485_DEBUG_OUTPUT_ALLOWED = true;
+//HardwareSerial * _debug_s = &Serial;
+
 
 // ========================= pseudo documentation =============================
 
@@ -89,7 +94,7 @@ const uint8_t d_admin_write = 0x32;
 const uint8_t d_admin_execute = 0x33;
 
 //success codes
-const uint8_t d_success = 0x00;
+const uint8_t d_success = 0xAA;
 
 //error codes
 const uint8_t d_access_denied = 0x10;
@@ -113,7 +118,7 @@ const uint16_t d_data_addr = 0x0002;
 
 // ========================= useful methods declaration =============================
 // some useful methods and structs
-struct two_bytes  //disgusting
+struct two_bytes  //disgusting_s->write(sm.STATUS_1);
 {
     uint8_t first;
     uint8_t last;
@@ -200,3 +205,5 @@ class SlaveMessage
 };
 
 #endif
+
+

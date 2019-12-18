@@ -1,4 +1,4 @@
-//#include <Arduino.h>
+
 #include "Device.h"
 
 
@@ -55,7 +55,7 @@ SlaveMessage BaseDevice::generate_success_sm(uint8_t command, uint32_t data)
 }
 
 
-BaseDevice::BaseDevice(uint16_t uid)
+BaseDevice::BaseDevice(uint16_t uid, bool debug)
 {
     // init all registers manually
     // its not so bad
@@ -74,6 +74,8 @@ BaseDevice::BaseDevice(uint16_t uid)
     regs = new Reg*[regs_len];
     regs[0] = &_uid;  // put here pointer for _uid
     // thats all folks
+    _debug_s = &Serial;
+    D_RS485_DEBUG_OUTPUT_ALLOWED = debug;
 
 }
 
@@ -82,20 +84,43 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
     // main procedure - handle mm and return correct sm with result
     // or with error flag
 
+    if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+    {
+    _debug_s->println("device: We start handle mm ");
+    }
+
     // at first lets check if there is such register
     Reg *actual_reg = nullptr;
     uint16_t reg_addr = d_unite2(mm.REG_ADDR_1, mm.REG_ADDR_2);
+    if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+    {
+        _debug_s->print("we want find that: ");
+        _debug_s->print(mm.REG_ADDR_1, HEX);
+        _debug_s->print(" & ");
+        _debug_s->print(mm.REG_ADDR_2, HEX);
+        _debug_s->print("  =  ");
+        _debug_s->println(reg_addr);
+    }
     for(int i = 0; i<regs_len; i++)
     {
         if(regs[i]->addr == reg_addr)
         {
             // we have found
+            if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+            {
+            _debug_s->print("we have found register: ");
+            _debug_s->println(reg_addr);
+            }
             actual_reg = regs[i];
         }
     }
     // if we have not found
     if(actual_reg == nullptr)
     {
+        if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+        {
+        _debug_s->println("we have not found register");
+        }
         // return slave message with error  d_no_such_register
         return generate_error_sm(mm.COMMAND, d_no_such_register);
     }
@@ -199,7 +224,7 @@ SlaveMessage BaseDevice::_write_register(Reg* r, uint32_t new_data, bool isadmin
         if(r->writable != true)
         {
             // return error sm with d_access_denied error flag
-            return generate_error_sm(d_user_read, d_access_denied);
+            return generate_error_sm(d_user_write, d_access_denied);
         }
         else
         {
@@ -221,7 +246,15 @@ SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin)
     if(r->exec_method_pointer == nullptr)
     {
         // return error sm with d_access_denied error flag
-        return generate_error_sm(d_user_read, d_access_denied);
+        if(isadmin)
+        {
+        return generate_error_sm(d_admin_execute, d_access_denied);
+        }
+        else
+        {
+            return generate_error_sm(d_user_execute, d_access_denied);
+        }
+        
     }
     else
     {
@@ -239,7 +272,7 @@ SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin)
             if(r->executable != true)
             {
                 // return error sm with d_access_denied error flag
-                return generate_error_sm(d_user_read, d_access_denied);
+                return generate_error_sm(d_user_execute, d_access_denied);
             }
             else
             {

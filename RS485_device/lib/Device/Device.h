@@ -5,8 +5,9 @@ lib for device arduino wrappers
 #ifndef Device_h
 #define Device_h
 
-//#include <Arduino.h>
 #include <Protocol.h>
+#include <Arduino.h>
+
 
 // classes definitions
 
@@ -53,7 +54,7 @@ class BaseDevice
     // internal method
     uint16_t get_uid(); 
 
-    BaseDevice(uint16_t uid);
+    BaseDevice(uint16_t uid, bool debug = false);
     SlaveMessage handle_mm(MasterMeassage mm); //returns error message or answer message
     SlaveMessage generate_error_sm(uint8_t command, uint8_t error_code); //generates default error sm
     SlaveMessage generate_success_sm(uint8_t command, uint32_t data);  // generates sm with this data
@@ -64,6 +65,8 @@ class BaseDevice
     SlaveMessage _execute_register(Reg* r, bool isadmin = false);
 
     protected:
+    bool D_RS485_DEBUG_OUTPUT_ALLOWED;
+    HardwareSerial* _debug_s;
     // registers are private and we cant directly touch them from outside
     // we should use public functions
     // registers

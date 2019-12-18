@@ -5,6 +5,9 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
+#define RS485Transmit HIGH  //disgusting
+#define RS485Receive LOW
+
 // ========================= SystemKeeper class declaration =============================
 
 class SystemKeeper
@@ -25,12 +28,16 @@ class SystemKeeper
     void send_slave_message(SlaveMessage sm);
     SlaveMessage parse_master_message(MasterMeassage mm);
     //void parse_slave_message(SlaveMessage sm);
-    SystemKeeper(BaseDevice **device_pointer_, uint16_t devices_number_, HardwareSerial *s);
+    SystemKeeper(BaseDevice **device_pointer_, uint16_t devices_number_,
+    SoftwareSerial * s, uint16_t sspin, bool debug = false);
     void do_main_loop();
 
     protected:
+    bool D_RS485_DEBUG_OUTPUT_ALLOWED; // debug flag
     BaseDevice **_device_pointer; // pointer to array of pointers to devices 
     uint16_t _devices_number; // number of devices
-    HardwareSerial * _s; // pointer to serial object
+    HardwareSerial * _debug_s; // pointer to hardvareserial object only for debug
+    SoftwareSerial * _s; // pointer to software serial to real messaging
+    uint16_t software_serial_pin; // pin to go from read mode to write mode in max485 
 };
  #endif
