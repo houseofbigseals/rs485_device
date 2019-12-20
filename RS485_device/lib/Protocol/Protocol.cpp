@@ -1,6 +1,6 @@
 
 #include "Protocol.h"
-
+#include <avr/pgmspace.h>
 
 
 // supporting functions
@@ -36,7 +36,33 @@ two_bytes d_split2 (uint16_t value)
     return result;
 }
 
+uint16_t d_crc16(uint8_t *pcBlock, uint16_t len)
+{
+    /*
+  Name  : CRC-16 CCITT
+  Poly  : 0x1021    x^16 + x^12 + x^5 + 1
+  Init  : 0xFFFF
+  Revert: false
+  XorOut: 0x0000
+  Check : 0x29B1 ("123456789")
+  MaxLen: 4095 байт (32767 бит) - обнаружение
+    одинарных, двойных, тройных и всех нечетных ошибок
+    */
+    uint16_t crc = 0xFFFF;
+    uint8_t i;
 
+    while (len--)
+    {
+        crc ^= *pcBlock++ << 8;
+
+        for (i = 0; i < 8; i++)
+            crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
+    }
+    return crc;
+}
+
+// table method
+//8 times faster but need to handle 512 mb in RAM
 /*
   Name  : CRC-16 CCITT
   Poly  : 0x1021    x^16 + x^12 + x^5 + 1
@@ -47,6 +73,7 @@ two_bytes d_split2 (uint16_t value)
   MaxLen: 4095 байт (32767 бит) - обнаружение
     одинарных, двойных, тройных и всех нечетных ошибок
 */
+/*
 const unsigned short d_Crc16Table[256] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
     0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -87,10 +114,12 @@ uint16_t d_crc16(uint8_t * pcBlock, uint16_t len)
     uint16_t crc = 0xFFFF;
 
     while (len--)
+        // uint16_t displayInt = pgm_read_word_near(charSet + k);
         crc = (crc << 8) ^ d_Crc16Table[(crc >> 8) ^ *pcBlock++];
 
     return crc;
 }
+*/
 
 // ========================= message class methods implementation =============================
 // message methods

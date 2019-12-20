@@ -51,7 +51,7 @@
     second byte is error message or success status
 
     0x00 : 0x0F - success execution codes
-    0x00 - absolutely win
+    0xAA - absolutely win
 
     0x10 : 0x1F - access error codes
     0x10 - access to register denied
@@ -59,7 +59,7 @@
     0x20 : 0x2F - execution error codes
     0x20 - value is incorrect (cant execute this conmmand with that register with that value)
     0x21 - no such register
-    0x22 - 
+    0x22 - error of register execution
 
     0x30 : 0x3F - CRC sum and package format error codes
     0x30 - incorrect CRC sum
@@ -100,6 +100,7 @@ const uint8_t d_success = 0xAA;
 const uint8_t d_access_denied = 0x10;
 const uint8_t d_value_incorrect = 0x20;
 const uint8_t d_no_such_register = 0x21;
+const uint8_t d_register_execution_error = 0x22;
 const uint8_t d_crc_incorrect = 0x30;
 const uint8_t d_incorrect_package = 0x31;
 const uint8_t d_incorrect_command = 0x34;
@@ -112,8 +113,10 @@ const uint8_t d_master_message_len = 12;
 const uint8_t d_slave_message_len = 11;
 
 // default register adresses
-const uint16_t d_device_addr = 0x0001;
-const uint16_t d_data_addr = 0x0002;
+// yeah, disgusting
+const uint16_t d_device_data_addr = 0x0001;
+const uint16_t d_sensor_data_addr = 0x0002;
+const uint16_t d_relay_data_addr = 0x0003;
 
 
 // ========================= useful methods declaration =============================

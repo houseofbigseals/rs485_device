@@ -26,8 +26,8 @@ class Reg
         uint32_t data_ = 0x00000000,
         bool readable_ = false,
         bool writable_ = false,
-        bool executable_ = false,
-        uint32_t (*exec_method_pointer_)() = nullptr
+        bool executable_ = false
+        //bool (BaseDevice::*exec_method_pointer_)(uint32_t _in_data, uint32_t * _out_data) = nullptr
     );
     
     uint16_t addr;
@@ -35,7 +35,7 @@ class Reg
     bool readable;
     bool writable;
     bool executable;
-    uint32_t (*exec_method_pointer)();
+    //bool (BaseDevice::*exec_method_pointer)(uint32_t _in_data, uint32_t * _out_data);
 };
 
 class BaseDevice
@@ -55,14 +55,18 @@ class BaseDevice
     uint16_t get_uid(); 
 
     BaseDevice(uint16_t uid, bool debug = false);
+    //BaseDevice();
+    bool stub_reg_execution(uint32_t _in_data, uint32_t * _out_data);
     SlaveMessage handle_mm(MasterMeassage mm); //returns error message or answer message
     SlaveMessage generate_error_sm(uint8_t command, uint8_t error_code); //generates default error sm
     SlaveMessage generate_success_sm(uint8_t command, uint32_t data);  // generates sm with this data
-    void do_your_duty();  //tryes to do some uniq periodical routine 
+    virtual void do_your_duty();  //tryes to do some uniq periodical routine 
     // register methods 
     SlaveMessage _read_register(Reg* r, bool isadmin = false);
     SlaveMessage _write_register(Reg* r, uint32_t new_data, bool isadmin = false);
-    SlaveMessage _execute_register(Reg* r, bool isadmin = false);
+    SlaveMessage _execute_register(Reg* r, MasterMeassage* mmptr, bool isadmin = false);
+    virtual SlaveMessage __private_execute(Reg* r, MasterMeassage* mmptr, bool isadmin = false);
+
 
     protected:
     bool D_RS485_DEBUG_OUTPUT_ALLOWED;

@@ -7,16 +7,14 @@ Reg::Reg(
         uint32_t data_,
         bool readable_ ,
         bool writable_,
-        bool executable_,
-        uint32_t (*exec_method_pointer_)()
-    )
+        bool executable_
+        )
 {
     addr = addr_;
     data = data_;
     readable = readable_;
     writable = writable_;
     executable = executable_;
-    exec_method_pointer = exec_method_pointer_;
 }
 
 SlaveMessage BaseDevice::generate_error_sm(uint8_t command, uint8_t error_code)
@@ -76,7 +74,6 @@ BaseDevice::BaseDevice(uint16_t uid, bool debug)
     // thats all folks
     _debug_s = &Serial;
     D_RS485_DEBUG_OUTPUT_ALLOWED = debug;
-
 }
 
 SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
@@ -86,7 +83,7 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
 
     if(D_RS485_DEBUG_OUTPUT_ALLOWED)
     {
-    _debug_s->println("device: We start handle mm ");
+    _debug_s->println(F("device: We start handle mm "));
     }
 
     // at first lets check if there is such register
@@ -94,7 +91,7 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
     uint16_t reg_addr = d_unite2(mm.REG_ADDR_1, mm.REG_ADDR_2);
     if(D_RS485_DEBUG_OUTPUT_ALLOWED)
     {
-        _debug_s->print("we want find that: ");
+        _debug_s->print(F("we want find that: "));
         _debug_s->print(mm.REG_ADDR_1, HEX);
         _debug_s->print(" & ");
         _debug_s->print(mm.REG_ADDR_2, HEX);
@@ -108,7 +105,7 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
             // we have found
             if(D_RS485_DEBUG_OUTPUT_ALLOWED)
             {
-            _debug_s->print("we have found register: ");
+            _debug_s->print(F("we have found register: "));
             _debug_s->println(reg_addr);
             }
             actual_reg = regs[i];
@@ -119,7 +116,7 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
     {
         if(D_RS485_DEBUG_OUTPUT_ALLOWED)
         {
-        _debug_s->println("we have not found register");
+        _debug_s->println(F("we have not found register"));
         }
         // return slave message with error  d_no_such_register
         return generate_error_sm(mm.COMMAND, d_no_such_register);
@@ -148,7 +145,7 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
             case d_user_execute:
             {
                 // execute
-                return _execute_register(actual_reg, false);
+                return _execute_register(actual_reg, &mm);
                 break;
             }
             case d_admin_read:
@@ -167,7 +164,7 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
             case d_admin_execute:
             {
                 // execute register as admin and return generated sm
-                return _execute_register(actual_reg, true);
+                return _execute_register(actual_reg, &mm, true);
                 break;
             }
             default:
@@ -183,6 +180,11 @@ SlaveMessage BaseDevice::handle_mm(MasterMeassage mm)
 SlaveMessage BaseDevice::_read_register(Reg* r, bool isadmin)
 {
     // handle all things about reading data from register
+    if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+    {
+    _debug_s->print(F("device: We start read register: 0x"));
+    _debug_s->println(r->addr, HEX);
+    }
     if(isadmin)
     {
         // we should use admin method
@@ -210,6 +212,11 @@ SlaveMessage BaseDevice::_read_register(Reg* r, bool isadmin)
 SlaveMessage BaseDevice::_write_register(Reg* r, uint32_t new_data, bool isadmin)
 {
     // handle all things about writing data from register
+    if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+    {
+    _debug_s->print(F("device: We start write to register: 0x"));
+    _debug_s->println(r->addr, HEX);
+    }
     if(isadmin)
     {
         // we should use admin method
@@ -236,35 +243,21 @@ SlaveMessage BaseDevice::_write_register(Reg* r, uint32_t new_data, bool isadmin
     }
 }
 
-SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin)
+SlaveMessage BaseDevice::_execute_register(Reg* r, MasterMeassage * mm, bool isadmin)
 {
     // handle all things about executing data from register
-
-    // just check if pointer to function is not nullptr
-    // then execute it like a stupid
-
-    if(r->exec_method_pointer == nullptr)
     {
-        // return error sm with d_access_denied error flag
-        if(isadmin)
-        {
-        return generate_error_sm(d_admin_execute, d_access_denied);
-        }
-        else
-        {
-            return generate_error_sm(d_user_execute, d_access_denied);
-        }
-        
+    if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+    {
+    _debug_s->print(F("device: We start execute register: 0x"));
+    _debug_s->println(r->addr, HEX);
     }
-    else
-    {
         if(isadmin)
         {
             // we should use admin method
             // so ignore permission flags
-            // just execute exec_method_pointer and get put result to r-> data
-            r->data = r->exec_method_pointer();
-            return  generate_success_sm(d_admin_execute, r->data);
+            // just execute __private_execute
+            return __private_execute(r, mm, true);
         }
         else
         {
@@ -277,16 +270,29 @@ SlaveMessage BaseDevice::_execute_register(Reg* r, bool isadmin)
             else
             {
                 // lets get data from register and put to VALUE fields of message
-                r->data = r->exec_method_pointer();
-                return  generate_success_sm(d_user_execute, r->data);
+                return __private_execute(r, mm);
             }
         }
     }
 }
 
+SlaveMessage BaseDevice::__private_execute(Reg* r, MasterMeassage* mm, bool isadmin)
+{
+    // must be overriden in child devices
+    // because it uniq for all devices and depends on device role
+    if(D_RS485_DEBUG_OUTPUT_ALLOWED)
+    {
+    _debug_s->print(F("device: We start stub-__private_execute register: 0x"));
+    _debug_s->println(r->addr, HEX);
+    }
+    // in base device just send back r->data
+    return generate_success_sm(mm->COMMAND, r->data);
+}
+
 void BaseDevice::do_your_duty()
 {
     // nothing for base class
+    // must be overriden in child class
 }
 
 uint16_t BaseDevice::get_uid()

@@ -10,6 +10,7 @@
 
 
 #include <SystemKeeper.h>
+#include <OneGpioDevice.h>
 
 // software serial init
 uint8_t rx_pin = 12;
@@ -20,19 +21,25 @@ uint8_t ss_mode_pin = 3;
 SoftwareSerial myserial = SoftwareSerial(rx_pin, tx_pin);
 
 //devices init
-BaseDevice dev1 = BaseDevice(0x0020, true);
-BaseDevice dev2 = BaseDevice(0x0021, true);
-BaseDevice dev3 = BaseDevice(0x0022, true);
-BaseDevice dev4 = BaseDevice(0x0023, true);
-BaseDevice dev5 = BaseDevice(0x0024, true);
-BaseDevice dev6 = BaseDevice(0x0025, true);
+BaseDevice dev1 = BaseDevice(0x0120, true);
+
+BaseDevice dev2 = BaseDevice(0x0121, true);
+BaseDevice dev3 = BaseDevice(0x0122, true);
+BaseDevice dev4 = BaseDevice(0x0123, true);
+OneGpioDevice dev5 = OneGpioDevice(4, 0x0124, true);
+OneGpioDevice dev6 = OneGpioDevice(5, 0x0125, true);
+
+
 BaseDevice* devarr[6] = {&dev1, &dev2, &dev3, &dev4, &dev5, &dev6};
 SystemKeeper sk = SystemKeeper(devarr, 6, &myserial, ss_mode_pin, true);
 
+/*BaseDevice* devarr[1] = {&dev1};
+SystemKeeper sk = SystemKeeper(devarr, 1, &myserial, ss_mode_pin, true);
+*/
 void setup() 
 {
   Serial.begin(9600);
-  Serial.println("Start of init");
+  Serial.println(F("Start of init"));
   
   myserial.begin(9600);
   pinMode(ss_mode_pin, OUTPUT);
