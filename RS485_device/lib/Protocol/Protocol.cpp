@@ -62,7 +62,8 @@ uint16_t d_crc16(uint8_t *pcBlock, uint16_t len)
 }
 
 // table method
-//8 times faster but need to handle 512 mb in RAM
+// 8 times faster but need to handle 512 mb in RAM
+// must be saved here for future
 /*
   Name  : CRC-16 CCITT
   Poly  : 0x1021    x^16 + x^12 + x^5 + 1

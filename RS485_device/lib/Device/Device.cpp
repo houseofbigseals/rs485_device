@@ -61,7 +61,7 @@ BaseDevice::BaseDevice(uint16_t uid, bool debug)
 
     // init _uid register  read-only
     _uid = Reg(
-        0x0001,  //default addr of _uid register
+        d_device_data_addr,  //default addr of _uid register
         uid,
         true,
         false,

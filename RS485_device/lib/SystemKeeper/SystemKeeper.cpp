@@ -24,7 +24,7 @@ void SystemKeeper::parse_package(uint8_t * package, uint16_t len)
 {
     if(D_RS485_DEBUG_OUTPUT_ALLOWED)
     {
-    _debug_s->println("we got smth");
+    _debug_s->println(F("we got smth"));
     }
 
     // at first lets check if it has correct length
@@ -34,7 +34,7 @@ void SystemKeeper::parse_package(uint8_t * package, uint16_t len)
         // its incorrect
         if(D_RS485_DEBUG_OUTPUT_ALLOWED)
         {
-        _debug_s->print("but len is incorrect: ");
+        _debug_s->print(F("but len is incorrect: "));
         _debug_s->println(len);
         }
     }
@@ -47,7 +47,7 @@ void SystemKeeper::parse_package(uint8_t * package, uint16_t len)
             // its incorrect
             if(D_RS485_DEBUG_OUTPUT_ALLOWED)
             {
-            _debug_s->print("start byte incorrect: ");
+            _debug_s->print(F("start byte incorrect: "));
             _debug_s->print(package[0], HEX);
             _debug_s->println(" ");
             }
@@ -66,7 +66,7 @@ void SystemKeeper::parse_package(uint8_t * package, uint16_t len)
                 // its incorrect
                 if(D_RS485_DEBUG_OUTPUT_ALLOWED)
                 {
-                _debug_s->print("crc incorrect: ");
+                _debug_s->print(F("crc incorrect: "));
                 _debug_s->print(package[len-2], HEX);
                 _debug_s->print(" ");
                 _debug_s->print(package[len-1], HEX);
@@ -111,7 +111,7 @@ void SystemKeeper::parse_package(uint8_t * package, uint16_t len)
                         // then put it to found device to get resulted slave message 
                         if(D_RS485_DEBUG_OUTPUT_ALLOWED)
                         {
-                            _debug_s->println("we found adressed device");
+                            _debug_s->println(F("we found adressed device"));
                         }
                         SlaveMessage sm = _device_pointer[d]->handle_mm(message);
                         // then we have to send it back to master pc
@@ -132,14 +132,14 @@ void SystemKeeper::do_main_loop()
     if(_s->available())
     {
         // if we have any lets get them
-        uint8_t message[30]; // we dont want read more than 30 characters //TODO fix
+        uint8_t message[12]; // we dont want read more than 30 characters //TODO fix
         uint16_t len = 0;
-        delay(5);  // strategical delay - awaiting until all bytes will be sent
+        delay(1);  // strategical delay - awaiting until all bytes will be sent
         while(_s->available())
         {
             message[len] = _s->read();
             len++;
-            delay(1);
+            delayMicroseconds(5);
         }
         // then lets parse it
         parse_package(message, len);
@@ -175,7 +175,7 @@ void SystemKeeper::send_slave_message(SlaveMessage sm)
     */
     if(D_RS485_DEBUG_OUTPUT_ALLOWED)
     {
-    _debug_s->println("start writing answer");
+    _debug_s->println(F("start writing answer"));
     }
     // disgusting
     // go to send mode
@@ -235,6 +235,6 @@ void SystemKeeper::send_slave_message(SlaveMessage sm)
     _debug_s->println((uint8_t)sm.CRC_16_2, HEX);
     delayMicroseconds(5);
 
-    delay(5);
+    delayMicroseconds(5);
     }
 }

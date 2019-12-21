@@ -59,7 +59,8 @@
     0x20 : 0x2F - execution error codes
     0x20 - value is incorrect (cant execute this conmmand with that register with that value)
     0x21 - no such register
-    0x22 - error of register execution
+    0x22 - unknown error of register execution
+    0x23 - hardware error of register execution
 
     0x30 : 0x3F - CRC sum and package format error codes
     0x30 - incorrect CRC sum
@@ -73,7 +74,7 @@
     0x40 - something went wrong
 
     other error codes:
-    0xAA - we are in big unknown trouble (use only as flag of real big problem, like fatal error)
+    0xBB - we are in big unknown trouble (use only as flag of real big problem, like fatal error)
     0xFF - reserved
 
     */
@@ -89,9 +90,9 @@ const uint8_t d_user_read = 0x01;
 const uint8_t d_user_write = 0x02;
 const uint8_t d_user_execute = 0x03;
 
-const uint8_t d_admin_read = 0x31;
-const uint8_t d_admin_write = 0x32;
-const uint8_t d_admin_execute = 0x33;
+const uint8_t d_admin_read = 0x31;  // can be used, but for tests and debug only
+const uint8_t d_admin_write = 0x32;  // deprecated, dont use it without big need in tests and debug
+const uint8_t d_admin_execute = 0x33;  // deprecated, never use it, this can lead to idiotic mistakes
 
 //success codes
 const uint8_t d_success = 0xAA;
@@ -101,6 +102,7 @@ const uint8_t d_access_denied = 0x10;
 const uint8_t d_value_incorrect = 0x20;
 const uint8_t d_no_such_register = 0x21;
 const uint8_t d_register_execution_error = 0x22;
+const uint8_t d_hardware_register_execution_error = 0x23;
 const uint8_t d_crc_incorrect = 0x30;
 const uint8_t d_incorrect_package = 0x31;
 const uint8_t d_incorrect_command = 0x34;
@@ -114,9 +116,9 @@ const uint8_t d_slave_message_len = 11;
 
 // default register adresses
 // yeah, disgusting
-const uint16_t d_device_data_addr = 0x0001;
-const uint16_t d_sensor_data_addr = 0x0002;
-const uint16_t d_relay_data_addr = 0x0003;
+const uint16_t d_device_data_addr = 0x0010;  // 10-19
+const uint16_t d_sensor_data_addr = 0x0020;  // 20-29
+const uint16_t d_relay_data_addr = 0x0030;  // 30-39
 
 
 // ========================= useful methods declaration =============================
